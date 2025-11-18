@@ -235,11 +235,6 @@ h1 {
     gap: 12px;
 }
 
-.message-area {
-    text-align: center;
-    margin: 20px 0;
-}
-
 /* Modern button styles */
 button {
     padding: 14px 28px;
@@ -437,23 +432,6 @@ button:disabled:hover {
     font-weight: 700;
     font-size: 1.15rem;
     text-shadow: 0 0 10px rgba(255,215,0,0.3);
-}
-
-#game-message {
-    display: inline-block;
-    text-align: center;
-    color: #fff;
-    font-weight: 700;
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    animation: pulse 2s ease-in-out infinite;
-    min-width: 300px;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
 }
 
 /* Card animations */
