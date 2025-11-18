@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack Game</title>
+    <link rel="stylesheet" href="blackjack-styles.css">
+    <link rel="stylesheet" href="CardDesign/card-styles.css">
+</head>
+<body>
+    <div class="background"></div>
+    <h1>Welcome to Blackjack</h1>
+    <div id="game">
+        <div id="dealer">
+            <h2>Dealer's Hand <span id="dealer-total"></span></h2>
+            <div class="hand" id="dealer-hand"></div>
+        </div>
+        <div id="player">
+            <h2>Your Hand <span id="player-total"></span></h2>
+            <div class="hand" id="player-hand"></div>
+        </div>
+        
+        <!-- Status Display -->
+        <div class="status">
+            <div class="pill balance">Balance: $<span id="bankroll-amount">1000</span></div>
+            <div class="pill">Bet: $<span id="bet-amount">0</span></div>
+        </div>
+        
+        <!-- Betting Controls -->
+        <div class="betting-controls">
+            <div class="chips">
+                <button class="betting-chip" id="chip-1" data-value="1">$1</button>
+                <button class="betting-chip" id="chip-5" data-value="5">$5</button>
+                <button class="betting-chip" id="chip-25" data-value="25">$25</button>
+                <button class="betting-chip" id="chip-100" data-value="100">$100</button>
+            </div>
+        </div>
+        
+        <!-- Action Controls -->
+        <div class="controls">
+            <button id="hit-button">Hit</button>
+            <button id="stand-button">Stand</button>
+            <button id="double-button">Double Down</button>
+            <button id="split-button">Split</button>
+        </div>
+        
+        <!-- Insurance Controls (hidden by default) -->
+        <div class="insurance-controls">
+            <button id="insurance-yes" style="display: none;">Take Insurance</button>
+            <button id="insurance-no" style="display: none;">No Insurance</button>
+        </div>
+        
+        <!-- Game Message -->
+        <div class="message-area">
+            <div class="pill" id="game-message">Place your bet</div>
+        </div>
+        
+        <!-- Bottom Controls -->
+        <div class="bottom-controls">
+            <button id="new-game">New Game</button>
+            <div class="right-controls">
+                <button id="clear-bet">Clear Bet</button>
+                <button id="deal-button">Deal</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load scripts in correct order -->
+    <script src="CardDesign/deckGeneration.js"></script>
+    <script src="CardDesign/cardDesign.js"></script>
+    <script src="CardDesign/cardRender.js"></script>
+    <script src="GameState/deckManager.js"></script>
+    <script src="GameState/handManager.js"></script>
+    <script src="GameState/bankrollManager.js"></script>
+    <script src="GameState/gameStateManager.js"></script>
+    <script src="UIManager/uiManager.js"></script>
+    <script src="GameState/game.js"></script>
+    
+    <script>
+        // Initialize game when DOM is loaded
+        initializeGame();
+    </script>
+</body>
+</html>
