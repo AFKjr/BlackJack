@@ -282,10 +282,17 @@ button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
     transform: none;
+    filter: grayscale(80%) brightness(0.7);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 button:disabled:hover {
     transform: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+button:disabled::before {
+    display: none; 
 }
 
 /* Betting chips */
@@ -345,6 +352,21 @@ button:disabled:hover {
 #clear-bet {
     background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
     color: #fff;
+}
+
+/* Repeat Bet button */
+#repeat-bet {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    color: #fff;
+}
+
+#repeat-bet:hover {
+    box-shadow: 0 6px 20px rgba(155, 89, 182, 0.6);
+}
+
+#repeat-bet:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 /* Action buttons - rounded with specific colors */
@@ -478,3 +500,167 @@ button:disabled:hover {
     #game { padding: 12px; }
     h1 { font-size: 1.4rem; }
 }
+
+/* ===== OVERLAY NOTIFICATION ===== */
+.game-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: overlayFadeIn 0.3s ease-out;
+}
+
+.game-overlay.hidden {
+    display: none;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.overlay-content {
+    text-align: center;
+    animation: overlaySlideIn 0.4s ease-out;
+}
+
+@keyframes overlaySlideIn {
+    from {
+        transform: translateY(-50px) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.overlay-icon {
+    font-size: 120px;
+    margin-bottom: 20px;
+    animation: iconPulse 0.6s ease-out;
+}
+
+@keyframes iconPulse {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.overlay-title {
+    font-size: 4rem;
+    font-weight: 900;
+    margin: 0 0 20px 0;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+}
+
+.overlay-message {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Win styling */
+.game-overlay.win .overlay-icon::before {
+    content: '🎉';
+}
+
+.game-overlay.win .overlay-title {
+    color: var(--accent-gold);
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.6),
+                 0 4px 8px rgba(0, 0, 0, 0.8);
+    animation: glowPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        text-shadow: 0 0 30px rgba(255, 215, 0, 0.6),
+                     0 4px 8px rgba(0, 0, 0, 0.8);
+    }
+    50% {
+        text-shadow: 0 0 50px rgba(255, 215, 0, 0.9),
+                     0 4px 8px rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* Blackjack styling */
+.game-overlay.blackjack .overlay-icon::before {
+    content: '💎';
+}
+
+.game-overlay.blackjack .overlay-title {
+    color: var(--accent-gold);
+    text-shadow: 0 0 40px rgba(255, 215, 0, 0.8),
+                 0 0 80px rgba(255, 215, 0, 0.5),
+                 0 4px 8px rgba(0, 0, 0, 0.8);
+    animation: glowPulse 1s ease-in-out infinite;
+}
+
+/* Lose styling */
+.game-overlay.lose .overlay-icon::before {
+    content: '💥';
+}
+
+.game-overlay.lose .overlay-title {
+    color: var(--accent-red);
+    text-shadow: 0 0 30px rgba(255, 59, 59, 0.6),
+                 0 4px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Push (tie) styling */
+.game-overlay.push .overlay-icon::before {
+    content: '🤝';
+}
+
+.game-overlay.push .overlay-title {
+    color: #95a5a6;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Bust styling */
+.game-overlay.bust .overlay-icon::before {
+    content: '💔';
+}
+
+.game-overlay.bust .overlay-title {
+    color: var(--accent-red);
+    text-shadow: 0 0 30px rgba(255, 59, 59, 0.6),
+                 0 4px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .overlay-icon {
+        font-size: 80px;
+    }
+    
+    .overlay-title {
+        font-size: 2.5rem;
+    }
+    
+    .overlay-message {
+        font-size: 1.2rem;
+    }
+}
+
+

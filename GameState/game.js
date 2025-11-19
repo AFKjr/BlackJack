@@ -8,8 +8,8 @@ const uiManager = new UIManager(cardDesign);
 // Initialize game state manager with all dependencies
 let gameStateManager;
 
-// Set up event listeners
-function initializeGame() {
+function initializeGame() 
+{
     // Create gameStateManager after DOM is loaded
     gameStateManager = new GameStateManager(
         deckManager,
@@ -25,16 +25,20 @@ function initializeGame() {
     
     // Display initial bankroll
     uiManager.displayBankroll(bankrollManager.getBalance());
+    
+    // Disable repeat bet button initially (no previous bet)
+    uiManager.updateRepeatBetButton(false, 0);
 }
 
-function setupBettingControls() {
-    // Betting chip buttons
+function setupBettingControls() 
+{
     const chip1 = document.getElementById('chip-1');
     const chip5 = document.getElementById('chip-5');
     const chip25 = document.getElementById('chip-25');
     const chip100 = document.getElementById('chip-100');
     const clearBetButton = document.getElementById('clear-bet');
     const dealButton = document.getElementById('deal-button');
+    const repeatBetButton = document.getElementById('repeat-bet');
     
     let currentBet = 0;
     
@@ -77,8 +81,15 @@ function setupBettingControls() {
             uiManager.displayMessage(error.message);
         }
     });
+
+    repeatBetButton.addEventListener('click', () => {
+    gameStateManager.repeatLastBet();
+    currentBet = 0;
+    updateBetDisplay(currentBet);
+});
     
-    function updateBetDisplay(amount) {
+    function updateBetDisplay(amount) 
+    {
         document.getElementById('bet-amount').textContent = amount;
         
         // Validate bet against balance
@@ -88,7 +99,8 @@ function setupBettingControls() {
     }
 }
 
-function setupActionButtons() {
+function setupActionButtons() 
+{
     const hitButton = document.getElementById('hit-button');
     const standButton = document.getElementById('stand-button');
     const doubleButton = document.getElementById('double-button');
@@ -125,7 +137,8 @@ function setupInsuranceButtons()
     });
 }
 
-function setupNewGameButton() {
+function setupNewGameButton() 
+{
     const newGameButton = document.getElementById('new-game');
     
     newGameButton.addEventListener('click', () => {
@@ -136,7 +149,8 @@ function setupNewGameButton() {
     });
 }
 
-function resetGame() {
+function resetGame() 
+{
     // Reset all managers
     deckManager.initializeShoe();
     handManager.clearAllHands();

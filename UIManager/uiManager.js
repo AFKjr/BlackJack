@@ -1,5 +1,7 @@
-class UIManager {
-    constructor(cardDesign) {
+class UIManager 
+{
+    constructor(cardDesign) 
+    {
         this.cardDesign = cardDesign;
         
         // Cache DOM elements
@@ -19,10 +21,12 @@ class UIManager {
         
         // Betting controls
         this.dealButton = document.getElementById('deal-button');
+        this.repeatBetButton = document.getElementById('repeat-bet');
         this.bettingChips = document.querySelectorAll('.betting-chip');
     }
     
-    displayPlayerHand(hand) {
+    displayPlayerHand(hand) 
+    {
         this.clearContainer(this.playerHandContainer);
         
         hand.cards.forEach((card, index) => {
@@ -33,13 +37,15 @@ class UIManager {
         this.updatePlayerTotal(hand.getBestTotal());
     }
     
-    addCardToPlayerHand(card) {
+    addCardToPlayerHand(card) 
+    {
         // Add a single card without clearing existing cards
         this.cardDesign.dealCard(card, this.playerHandContainer, 0);
         // Note: Total will be updated separately
     }
     
-    displayDealerHand(hand) {
+    displayDealerHand(hand) 
+    {
         this.clearContainer(this.dealerHandContainer);
         
         hand.cards.forEach((card, index) => {
@@ -51,13 +57,15 @@ class UIManager {
         this.updateDealerTotal(hand.getVisibleTotal());
     }
     
-    addCardToDealerHand(card) {
+    addCardToDealerHand(card) 
+    {
         // Add a single card without clearing existing cards
         this.cardDesign.dealCard(card, this.dealerHandContainer, 100);
         // Note: Total will be updated separately
     }
     
-    updatePlayerTotal(total) {
+    updatePlayerTotal(total) 
+    {
         this.playerTotalDisplay.textContent = total;
         
         if (total > 21) {
@@ -73,7 +81,8 @@ class UIManager {
         }
     }
     
-    updateDealerTotal(total) {
+    updateDealerTotal(total) 
+    {
         this.dealerTotalDisplay.textContent = total;
         
         if (total > 21) {
@@ -89,7 +98,8 @@ class UIManager {
         }
     }
     
-    clearContainer(container) {
+    clearContainer(container) 
+    {
         if (typeof container.replaceChildren === 'function') {
             container.replaceChildren();
         } else {
@@ -99,14 +109,16 @@ class UIManager {
         }
     }
     
-    clearAllHands() {
+    clearAllHands() 
+    {
         this.clearContainer(this.playerHandContainer);
         this.clearContainer(this.dealerHandContainer);
         this.playerTotalDisplay.textContent = '0';
         this.dealerTotalDisplay.textContent = '0';
     }
     
-    displayMessage(message) {
+    displayMessage(message) 
+    {
         this.messageDisplay.textContent = message;
         
         // Add animation class
@@ -115,7 +127,8 @@ class UIManager {
         this.messageDisplay.classList.add('message-fade-in');
     }
     
-    displayBankroll(amount) {
+    displayBankroll(amount) 
+    {
         this.bankrollDisplay.textContent = amount.toFixed(2);
         
         // Add pulse animation on change
@@ -124,11 +137,13 @@ class UIManager {
         this.bankrollDisplay.classList.add('amount-change');
     }
     
-    displayBet(amount) {
+    displayBet(amount) 
+    {
         this.betDisplay.textContent = amount.toFixed(2);
     }
     
-    updateActionButtons(availableActions) {
+    updateActionButtons(availableActions) 
+    {
         this.hitButton.disabled = !availableActions.canHit;
         this.standButton.disabled = !availableActions.canStand;
         this.doubleButton.disabled = !availableActions.canDouble;
@@ -141,7 +156,8 @@ class UIManager {
         this.toggleButtonState(this.splitButton, availableActions.canSplit);
     }
     
-    toggleButtonState(button, enabled) {
+    toggleButtonState(button, enabled) 
+    {
         if (enabled) {
             button.classList.remove('disabled');
             button.classList.add('enabled');
@@ -151,31 +167,52 @@ class UIManager {
         }
     }
     
-    enableDealButton() {
+    enableDealButton() 
+    {
         this.dealButton.disabled = false;
         this.dealButton.classList.add('enabled');
     }
     
-    disableDealButton() {
+    disableDealButton() 
+    {
         this.dealButton.disabled = true;
         this.dealButton.classList.remove('enabled');
     }
     
-    enableBetting() {
+    enableBetting() 
+    {
         this.bettingChips.forEach(chip => {
-            chip.disabled = false;
-        });
+        chip.disabled = false;
+    });
         this.enableDealButton();
     }
     
-    disableBetting() {
+    disableBetting() 
+    {
         this.bettingChips.forEach(chip => {
             chip.disabled = true;
         });
         this.disableDealButton();
+        this.repeatBetButton.disabled = true;
+    }
+
+    updateRepeatBetButton(canRepeat, lastBet = 0) 
+    {
+        if (canRepeat) 
+        {
+            this.repeatBetButton.disabled = false;
+            this.repeatBetButton.textContent = `Repeat Bet ($${lastBet})`;
+            this.repeatBetButton.title = `Place $${lastBet} bet and deal`;
+        } else 
+        {
+            this.repeatBetButton.disabled = true;
+            this.repeatBetButton.textContent = 'Repeat Bet';
+            this.repeatBetButton.title = 'No previous bet or insufficient funds';
+        }
     }
     
-    offerInsurance(insuranceAmount) {
+    offerInsurance(insuranceAmount) 
+    {
         const message = `Dealer shows Ace. Insurance costs $${insuranceAmount}. Take insurance?`;
         this.displayMessage(message);
         
@@ -189,12 +226,14 @@ class UIManager {
         // These buttons should be wired up in the game.js file
     }
     
-    hideInsuranceButtons() {
+    hideInsuranceButtons() 
+    {
         document.getElementById('insurance-yes').style.display = 'none';
         document.getElementById('insurance-no').style.display = 'none';
     }
     
-    updateGameState(state) {
+    updateGameState(state) 
+    {
         // Update UI based on current game state
         switch(state) {
             case GameState.WAITING_FOR_BET:
@@ -238,4 +277,35 @@ class UIManager {
                 break;
         }
     }
+
+    showOverlay(type, title, message, duration = 2500) 
+    {
+        const overlay = document.getElementById('game-overlay');
+        const overlayTitle = overlay.querySelector('.overlay-title');
+        const overlayMessage = overlay.querySelector('.overlay-message');
+    
+        // Remove all previous type classes
+        overlay.classList.remove('win', 'lose', 'push', 'bust', 'blackjack', 'hidden');
+    
+        // Add the appropriate type class
+        overlay.classList.add(type);
+    
+        // Set content
+        overlayTitle.textContent = title;
+        overlayMessage.textContent = message;
+    
+        // Show overlay
+        overlay.classList.remove('hidden');
+    
+        // Auto-hide after duration
+        setTimeout(() => {
+            this.hideOverlay();
+        }, duration);
+    }
+
+    hideOverlay() 
+    {
+        const overlay = document.getElementById('game-overlay');
+        overlay.classList.add('hidden');
+    }   
 }

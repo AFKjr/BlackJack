@@ -23,12 +23,14 @@ class GameStateManager
         this.playerHand = null;
         this.dealerHand = null;
         this.currentBet = 0;
+        this.lastBet = 0;
         this.insuranceBet = 0;
         this.hasInsurance = false;
     }
     
     // === BETTING ===
-    handleBetting(betAmount) {
+    handleBetting(betAmount) 
+    {
         const MINIMUM_BET = 1;
         const MAXIMUM_BET = 1000;
         
@@ -50,9 +52,56 @@ class GameStateManager
         this.uiManager.displayBet(betAmount);
         this.uiManager.enableDealButton();
     }
+
+    repeatLastBet() 
+    {
+        if (this.lastBet === 0) 
+        {
+            this.uiManager.displayMessage('No previous bet to repeat');
+            return;
+        }
     
-    // === DEALING ===
-    onDealButtonClick() {
+        if (this.currentState !== GameState.WAITING_FOR_BET) 
+        {
+            this.uiManager.displayMessage('Cannot place bet at this time');
+            return;
+        }
+    
+        if (this.lastBet > this.bankrollManager.getBalance()) 
+        {
+            this.uiManager.displayMessage(`Insufficient funds. Need $${this.lastBet}, have $${this.bankrollManager.getBalance().toFixed(2)}`);
+            return;
+        }
+    
+        // Use the same betting logic
+        this.handleBetting(this.lastBet);
+    
+        // Automatically deal cards
+        this.onDealButtonClick();
+    }
+
+    canRepeatBet() 
+    {
+        // Can't repeat if no previous bet exists
+        if (this.lastBet === 0) {
+            return false;
+        }
+    
+        // Can't repeat if not in betting phase
+        if (this.currentState !== GameState.WAITING_FOR_BET) {
+            return false;
+        }
+    
+        // Can't repeat if insufficient funds
+        if (this.lastBet > this.bankrollManager.getBalance()) {
+            return false;
+        }
+    
+        return true;
+    }
+    
+    onDealButtonClick() 
+    {
         if (this.currentState !== GameState.WAITING_FOR_BET) {
             return;
         }
@@ -66,7 +115,8 @@ class GameStateManager
         this.handleDealing();
     }
     
-    handleDealing() {
+    handleDealing() 
+    {
         // Clear previous hands
         this.playerHand = this.handManager.createHand();
         this.dealerHand = this.handManager.createHand();
@@ -100,7 +150,8 @@ class GameStateManager
     }
     
     // === INSURANCE ===
-    handleInsuranceOffer() {
+    handleInsuranceOffer() 
+    {
         const insuranceAmount = this.currentBet / 2;
         
         if (this.bankrollManager.getBalance() >= insuranceAmount) {
@@ -114,7 +165,8 @@ class GameStateManager
         }
     }
     
-    onInsuranceDecision(takeInsurance) {
+    onInsuranceDecision(takeInsurance) 
+    {
         if (this.currentState !== GameState.OFFERING_INSURANCE) {
             return;
         }
@@ -133,7 +185,8 @@ class GameStateManager
     }
     
     // === CHECKING BLACKJACK ===
-    handleCheckingBlackjack() {
+    handleCheckingBlackjack() 
+    {
         const playerHasBlackjack = this.isBlackjack(this.playerHand);
         const dealerShowsBlackjackPossibility = this.dealerShowsBlackjackPossibility();
         
@@ -201,7 +254,8 @@ class GameStateManager
         }
     }
     
-    isBlackjack(hand) {
+    isBlackjack(hand) 
+    {
         if (hand.cards.length !== 2) {
             return false;
         }
@@ -212,12 +266,14 @@ class GameStateManager
         return hasAce && hasTenValue;
     }
     
-    dealerShowsBlackjackPossibility() {
+    dealerShowsBlackjackPossibility() 
+    {
         const dealerUpCard = this.dealerHand.cards[0];
         return dealerUpCard.rank === 'A' || ['10', 'J', 'Q', 'K'].includes(dealerUpCard.rank);
     }
     
-    resolveInsurance(dealerHasBlackjack) {
+    resolveInsurance(dealerHasBlackjack) 
+    {
         if (dealerHasBlackjack) {
             // Insurance pays 2:1
             const insurancePayout = this.insuranceBet * 3; // Original bet + 2:1 win
@@ -232,15 +288,13 @@ class GameStateManager
         this.hasInsurance = false;
     }
     
-    // === PLAYER TURN ===
-    handlePlayerTurn() {
-        // Enable player action buttons
+    handlePlayerTurn() 
+    {
         this.updateAvailableActions();
-        
-        // UI will call onPlayerAction() when player chooses an action
     }
     
-    updateAvailableActions() {
+    updateAvailableActions() 
+    {
         const handTotal = this.playerHand.getBestTotal();
         const isBusted = handTotal > 21;
         const canAffordDouble = this.bankrollManager.getBalance() >= this.currentBet;
@@ -256,7 +310,8 @@ class GameStateManager
         });
     }
     
-    onPlayerAction(action) {
+    onPlayerAction(action) 
+    {
         if (this.currentState !== GameState.PLAYER_TURN) {
             return;
         }
@@ -277,7 +332,8 @@ class GameStateManager
         }
     }
     
-    handleHit() {
+    handleHit() 
+    {
         const newCard = this.deckManager.draw();
         this.playerHand.addCard(newCard);
         
@@ -412,69 +468,115 @@ class GameStateManager
     {
         let payout = 0;
         let message = '';
-        
-        switch(outcome) {
+        let overlayTitle = '';
+        let overlayMessage = '';
+        let overlayType = '';
+    
+        const playerTotal = this.playerHand.getBestTotal();
+        const dealerTotal = this.dealerHand.getBestTotal();
+    
+        switch(outcome) 
+        {
             case 'blackjack':
                 // Player wins 3:2 - gets original bet back + 1.5x bet
                 payout = this.currentBet + (this.currentBet * 1.5);
-                message = `Blackjack! You win $${this.currentBet * 1.5}!`;
+                const blackjackWin = this.currentBet * 1.5;
+                message = `Blackjack! You win $${blackjackWin.toFixed(2)}!`;
+                overlayTitle = 'BLACKJACK!';
+                overlayMessage = `You win $${blackjackWin.toFixed(2)} (3:2 payout)`;
+                overlayType = 'blackjack';
                 this.bankrollManager.addToBankroll(payout);
-                this.bankrollManager.recordWin(this.currentBet * 1.5);
+                this.bankrollManager.recordWin(blackjackWin);
                 break;
-                
+            
             case 'win':
                 // Player wins 1:1 - gets original bet back + 1x bet
                 payout = this.currentBet * 2;
-                message = `You win $${this.currentBet}!`;
+                message = `You win $${this.currentBet.toFixed(2)}!`;
+                overlayTitle = 'YOU WIN!';
+                overlayMessage = `$${this.currentBet.toFixed(2)} • Player: ${playerTotal} vs Dealer: ${dealerTotal}`;
+                overlayType = 'win';
                 this.bankrollManager.addToBankroll(payout);
                 this.bankrollManager.recordWin(this.currentBet);
                 break;
-                
+            
             case 'push':
                 // Return original bet only
                 payout = this.currentBet;
                 message = 'Push - Bet returned';
+                overlayTitle = 'PUSH';
+                overlayMessage = `Tie at ${playerTotal} • Bet returned`;
+                overlayType = 'push';
                 this.bankrollManager.addToBankroll(payout);
-                this.bankrollManager.handsPushed++;
-                this.bankrollManager.handsPlayed++;
+                this.bankrollManager.recordPush();
                 break;
-                
-            case 'loss':
+            
             case 'bust':
                 // Player loses - bet already deducted, no payout
                 payout = 0;
-                message = `You lose $${this.currentBet}`;
+                message = `Busted! You lose $${this.currentBet.toFixed(2)}`;
+                overlayTitle = 'BUSTED!';
+                overlayMessage = `Lost $${this.currentBet.toFixed(2)} • Over 21`;
+                overlayType = 'bust';
+                this.bankrollManager.recordLoss(this.currentBet);
+                break;
+            
+            case 'loss':
+                // Dealer wins - bet already deducted, no payout
+                payout = 0;
+                message = `You lose $${this.currentBet.toFixed(2)}`;
+                overlayTitle = 'DEALER WINS';
+                overlayMessage = `Lost $${this.currentBet.toFixed(2)} • Player: ${playerTotal} vs Dealer: ${dealerTotal}`;
+                overlayType = 'lose';
                 this.bankrollManager.recordLoss(this.currentBet);
                 break;
         }
-        
-        // Update UI with payout message and new bankroll
+    
+        // Update UI with payout message
         this.uiManager.displayMessage(message);
         this.uiManager.displayBankroll(this.bankrollManager.getBalance());
-        
-        // Move to round complete
+    
+        // Show dramatic overlay
+        this.uiManager.showOverlay(overlayType, overlayTitle, overlayMessage);
+    
+        // Move to round complete after overlay duration
+        setTimeout(() => {
         this.transitionToState(GameState.ROUND_COMPLETE);
         this.handleRoundComplete();
+        }, 2500); // Match the overlay duration
     }
     
     handleRoundComplete() 
     {
+        // Store the last bet for repeat bet feature
+        this.lastBet = this.currentBet;
+
         // Reset for next round
         this.currentBet = 0;
         this.insuranceBet = 0;
         this.hasInsurance = false;
-        
+
+    
         // Check if player has money left
         if (this.bankrollManager.getBalance() <= 0) {
-            this.uiManager.displayMessage("Out of money! Game Over.");
-            return;
+        this.uiManager.displayMessage("Out of money! Game Over.");
+        return;
         }
-        
+    
+        // Clear the hands from UI
+        this.uiManager.clearAllHands();
+    
         // Enable betting for next round
         this.transitionToState(GameState.WAITING_FOR_BET);
         this.uiManager.enableBetting();
-    }
     
+        // Update repeat bet button state
+        const canRepeat = this.canRepeatBet();
+        this.uiManager.updateRepeatBetButton(canRepeat, this.lastBet);
+    
+        this.uiManager.displayMessage("Place your bet for the next round");
+    }
+
     // === STATE MANAGEMENT ===
     transitionToState(newState) 
     {

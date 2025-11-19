@@ -9,6 +9,7 @@
 </head>
 <body>
     <div class="background"></div>
+    <h1> Welcome To Blackjack </h1>
     <div id="game">
         <div id="dealer">
             <h2>Dealer's Hand <span id="dealer-total"></span></h2>
@@ -58,6 +59,7 @@
         <div class="bottom-controls">
             <button id="new-game">New Game</button>
             <div class="right-controls">
+                <button id="repeat-bet">Repeat Bet</button>
                 <button id="clear-bet">Clear Bet</button>
                 <button id="deal-button">Deal</button>
             </div>
@@ -79,5 +81,12 @@
         // Initialize game when DOM is loaded
         initializeGame();
     </script>-->
+    <div id="game-overlay" class="game-overlay hidden">
+        <div class="overlay-content">
+            <div class="overlay-icon"></div>
+            <h2 class="overlay-title"></h2>
+            <p class="overlay-message"></p>
+        </div>
+    </div>
 </body>
 </html>
