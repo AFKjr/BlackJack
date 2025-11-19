@@ -10,8 +10,10 @@ const GameState = {
     GAME_OVER: 'GAME_OVER'
 };
 
-class GameStateManager {
-    constructor(deckManager, handManager, bankrollManager, uiManager) {
+class GameStateManager 
+{
+    constructor(deckManager, handManager, bankrollManager, uiManager) 
+    {
         this.currentState = GameState.WAITING_FOR_BET;
         this.deckManager = deckManager;
         this.handManager = handManager;
@@ -299,28 +301,30 @@ class GameStateManager {
         }
     }
     
-    handleStand() {
-        this.uiManager.displayMessage("You stand with " + this.playerHand.getBestTotal());
-        this.transitionToState(GameState.DEALER_TURN);
-        this.handleDealerTurn();
+    async handleStand() 
+    {
+    this.uiManager.displayMessage("You stand with " + this.playerHand.getBestTotal());
+    this.transitionToState(GameState.DEALER_TURN);
+    await this.handleDealerTurn();
     }
-    
-    handleDouble() {
+
+    async handleDouble() 
+    {
         // Double the bet
         this.bankrollManager.placeBet(this.currentBet);
         this.currentBet = this.currentBet * 2;
         this.uiManager.displayBet(this.currentBet);
-        
+    
         // Draw one card
         const newCard = this.deckManager.draw();
         this.playerHand.addCard(newCard);
-        
+    
         // Add only the new card to display
         this.uiManager.addCardToPlayerHand(newCard);
         this.uiManager.updatePlayerTotal(this.playerHand.getBestTotal());
-        
+    
         const handTotal = this.playerHand.getBestTotal();
-        
+    
         if (handTotal > 21) {
             // Player busted
             this.uiManager.displayMessage("Busted! You lose.");
@@ -330,48 +334,58 @@ class GameStateManager {
             // Automatically stand after double
             this.uiManager.displayMessage("Doubled down. Standing with " + handTotal);
             this.transitionToState(GameState.DEALER_TURN);
-            this.handleDealerTurn();
+            await this.handleDealerTurn();
         }
     }
-    
-    handleSplit() {
+
+    async handleSplit() 
+    {
         // TODO: Split functionality
         // This is more complex - we'll implement it later if needed
         this.uiManager.displayMessage("Split not yet implemented");
     }
     
     // === DEALER TURN ===
-    handleDealerTurn() {
+    async handleDealerTurn() 
+    {
         // Reveal dealer hole card
         this.dealerHand.revealHoleCard();
         this.uiManager.displayDealerHand(this.dealerHand);
-        
+    
+        // Wait a moment before dealer starts drawing
+        await this.delay(500);
+    
         // Dealer must hit on 16 or less, stand on 17 or more
-        this.dealerDrawCards();
+        await this.dealerDrawCards();
     }
     
-    dealerDrawCards() {
+    async dealerDrawCards() 
+    {
         const DEALER_STAND_VALUE = 17;
-        
+        const CARD_DEAL_DELAY = 1000; // 1 second between cards
+    
         let dealerTotal = this.dealerHand.getBestTotal();
-        
+    
         // Draw cards until dealer reaches 17 or busts
         while (dealerTotal < DEALER_STAND_VALUE) {
+        // Wait before drawing next card
+            await this.delay(CARD_DEAL_DELAY);
+        
             const newCard = this.deckManager.draw();
             this.dealerHand.addCard(newCard);
             this.uiManager.addCardToDealerHand(newCard);
             this.uiManager.updateDealerTotal(this.dealerHand.getBestTotal());
-            
+
             dealerTotal = this.dealerHand.getBestTotal();
         }
-        
         // Dealer is done drawing
         this.transitionToState(GameState.RESOLVING_BETS);
         this.compareHands();
     }
     
     // === RESOLVING BETS ===
-    compareHands() {
+    compareHands() 
+    {
         const playerTotal = this.playerHand.getBestTotal();
         const dealerTotal = this.dealerHand.getBestTotal();
         
@@ -394,7 +408,8 @@ class GameStateManager {
         }
     }
     
-    handlePayout(outcome) {
+    handlePayout(outcome) 
+    {
         let payout = 0;
         let message = '';
         
@@ -442,7 +457,8 @@ class GameStateManager {
         this.handleRoundComplete();
     }
     
-    handleRoundComplete() {
+    handleRoundComplete() 
+    {
         // Reset for next round
         this.currentBet = 0;
         this.insuranceBet = 0;
@@ -460,8 +476,13 @@ class GameStateManager {
     }
     
     // === STATE MANAGEMENT ===
-    transitionToState(newState) {
+    transitionToState(newState) 
+    {
         this.currentState = newState;
         this.uiManager.updateGameState(newState);
+    }
+    delay(milliseconds) 
+    {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
     }
 }

@@ -20,6 +20,7 @@ function initializeGame() {
     
     setupBettingControls();
     setupActionButtons();
+    setupInsuranceButtons();
     setupNewGameButton();
     
     // Display initial bankroll
@@ -107,6 +108,20 @@ function setupActionButtons() {
     
     splitButton.addEventListener('click', () => {
         gameStateManager.onPlayerAction('split');
+    });
+}
+
+function setupInsuranceButtons() 
+{
+    const insuranceYes = document.getElementById('insurance-yes');
+    const insuranceNo = document.getElementById('insurance-no');
+    
+    insuranceYes.addEventListener('click', () => {
+        gameStateManager.onInsuranceDecision(true);
+    });
+    
+    insuranceNo.addEventListener('click', () => {
+        gameStateManager.onInsuranceDecision(false);
     });
 }
 
