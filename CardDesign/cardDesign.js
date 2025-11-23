@@ -11,10 +11,11 @@ class CardDesign {
         cardDesign.className = 'card';
         cardDesign.dataset.rank = card.rank;
         cardDesign.dataset.suit = card.suit.id;
-        cardDesign.title = this.getDisplayName(card);
+        // cardDesign.title = this.getDisplayName(card);
         
         // If card is face down, show back
-        if (card.isFaceDown) {
+        if (card.isFaceDown) 
+        {
             cardDesign.classList.add('face-down');
             const backDesign = this.createCardBack();
             cardDesign.appendChild(backDesign);
